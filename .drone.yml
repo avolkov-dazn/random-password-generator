@@ -1,0 +1,43 @@
+pipeline:
+  clone:
+    image: plugins/git
+    tags: true
+    when:
+      event: tag
+
+  test:
+    group: test
+    image: golang:1.13
+    environment:
+      - GOOS=linux
+      - GOARCH=amd64
+    commands:
+      - go test ./...
+      - go vet ./...
+    when:
+      event: push
+
+  build-run:
+    group: test
+    image: golang:1.13
+    environment:
+      - GOOS=linux
+      - GOARCH=amd64
+    commands:
+      - go run *.go --skip-version-check
+      - go build *.go
+    when:
+      event: push
+
+  release:
+    image: golang:1.13
+    secrets: [github_token, build_secret]
+    environment:
+      - GOOS=linux
+      - GOARCH=amd64
+    commands:
+      - . ./.env
+      - rm ./.env
+      - curl -sL https://git.io/goreleaser | bash
+    when:
+      event: tag
