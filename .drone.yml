@@ -4,39 +4,9 @@ kind: pipeline
 type: docker
 
 steps:
-  - name: test
-    image: golang:1.13
-    environment:
-      - GOOS:linux
-      - GOARCH:amd64
+  - name: build
+    image: golang:1.3
     commands:
-      - go test ./...
-      - go vet ./...
-
-    trigger:
-      event:
-        - push
-# - name: build
-#   image: golang:1.13
-#   environment:
-#     - GOOS=linux
-#     - GOARCH=amd64
-#   commands:
-#     - go build *.go
-
-#   trigger:
-#     event:
-#       - push
-
-# release:
-#   image: golang:1.13
-#   secrets: [github_token, build_secret]
-#   environment:
-#     - GOOS=linux
-#     - GOARCH=amd64
-#   commands:
-#     - . ./.env
-#     - rm ./.env
-#     - curl -sL https://git.io/goreleaser | bash
-#   when:
-#     event: tag
+      - go get
+      - go build
+      - go test
